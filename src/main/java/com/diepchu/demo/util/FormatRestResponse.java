@@ -1,6 +1,6 @@
 package com.diepchu.demo.util;
 
-import com.diepchu.demo.domain.RestResonse;
+import com.diepchu.demo.domain.RestResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -24,10 +24,10 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         int status = httpServletResponse.getStatus();
 
         //case error
-        RestResonse<Object> restResonse = new RestResonse<Object>();
+        RestResponse<Object> restResonse = new RestResponse<Object>();
         restResonse.setStatusCode(status);
 
-//        if(body instanceof RestResonse){
+//        if(body instanceof String){
 //            return body;
 //        }
         if (status >= 400) {

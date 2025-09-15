@@ -1,6 +1,6 @@
 package com.diepchu.demo.domain;
 
-public class RestResonse<T> {
+public class RestResponse<T> {
     private int statusCode;
     private String error;
 
