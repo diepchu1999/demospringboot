@@ -1,6 +1,6 @@
 package com.diepchu.demo.util.error;
 
-import com.diepchu.demo.domain.RestResonse;
+import com.diepchu.demo.domain.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalException {
     @ExceptionHandler(value = IdInvalidException.class)
-    public ResponseEntity<RestResonse<Object>> handleBIdInvalidException(IdInvalidException idInvalidException) {
-        RestResonse<Object> restResonse = new RestResonse<Object>();
+    public ResponseEntity<RestResponse<Object>> handleBIdInvalidException(IdInvalidException idInvalidException) {
+        RestResponse<Object> restResonse = new RestResponse<Object>();
         restResonse.setStatusCode(HttpStatus.BAD_REQUEST.value());
         restResonse.setMessage("idInvalidException");
         restResonse.setError(idInvalidException.getMessage());
@@ -24,10 +24,10 @@ public class GlobalException {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<RestResonse<Object>> validationEror (MethodArgumentNotValidException methodArgumentNotValidException) {
+    public ResponseEntity<RestResponse<Object>> validationEror (MethodArgumentNotValidException methodArgumentNotValidException) {
         BindingResult bindingResult = methodArgumentNotValidException.getBindingResult();
         final List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-        RestResonse<Object> restResonse = new RestResonse<Object>();
+        RestResponse<Object> restResonse = new RestResponse<Object>();
         restResonse.setStatusCode(HttpStatus.BAD_REQUEST.value());
         restResonse.setError(methodArgumentNotValidException.getBody().getDetail());
         List<String> errors = fieldErrors.stream().map(fieldError -> fieldError.getDefaultMessage()).collect(Collectors.toUnmodifiableList());
