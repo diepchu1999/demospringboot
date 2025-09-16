@@ -3,17 +3,30 @@ package com.diepchu.demo.util.error;
 import com.diepchu.demo.domain.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalException {
+
+    @ExceptionHandler(value = {UsernameNotFoundException.class, BadCredentialsException.class})
+    public ResponseEntity<RestResponse<Object>> handleIdException(Exception ex) {
+        RestResponse<Object> response = new RestResponse<Object>();
+        response.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        response.setMessage(ex.getMessage());
+        response.setMessage("Exeption occurs..");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(value = IdInvalidException.class)
     public ResponseEntity<RestResponse<Object>> handleBIdInvalidException(IdInvalidException idInvalidException) {
         RestResponse<Object> restResonse = new RestResponse<Object>();
@@ -24,12 +37,12 @@ public class GlobalException {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<RestResponse<Object>> validationEror (MethodArgumentNotValidException methodArgumentNotValidException) {
-        BindingResult bindingResult = methodArgumentNotValidException.getBindingResult();
+    public ResponseEntity<RestResponse<Object>> validationEror (MethodArgumentNotValidException methodArgmentNotValidException) {
+        BindingResult bindingResult = methodArgmentNotValidException.getBindingResult();
         final List<FieldError> fieldErrors = bindingResult.getFieldErrors();
         RestResponse<Object> restResonse = new RestResponse<Object>();
         restResonse.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        restResonse.setError(methodArgumentNotValidException.getBody().getDetail());
+        restResonse.setError(methodArgmentNotValidException.getBody().getDetail());
         List<String> errors = fieldErrors.stream().map(fieldError -> fieldError.getDefaultMessage()).collect(Collectors.toUnmodifiableList());
         restResonse.setMessage(errors.size() > 1 ? errors.get(0) : errors.get(0));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restResonse);
