@@ -1,12 +1,10 @@
 package com.diepchu.demo.repository;
 
+import com.diepchu.demo.domain.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-import com.diepchu.demo.domain.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
-    User findByEmail(String email);
-
+public interface CompanyRepository extends JpaRepository<Company, Long>, JpaSpecificationExecutor<Company> {
 }

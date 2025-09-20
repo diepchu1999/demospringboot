@@ -1,7 +1,12 @@
 package com.diepchu.demo.service;
 
 import com.diepchu.demo.domain.User;
+import com.diepchu.demo.domain.dto.Meta;
+import com.diepchu.demo.domain.dto.ResultPaginationDTO;
 import com.diepchu.demo.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,18 +29,27 @@ public class UserService {
 
     public User fetchUserById(long id) {
         Optional<User> user = this.userRepository.findById(id);
-        if (user.isPresent()) {
-            return user.get();
-        }
-        return null;
+        return user.orElse(null);
     }
 
-    public List<User> fetchAllUsers() {
-        return this.userRepository.findAll();
+    public ResultPaginationDTO fetchAllUsers(Specification<User> specification, Pageable pageable) {
+        Page<User> users = this.userRepository.findAll(specification,pageable);
+        Meta meta = Meta.builder()
+                .page(pageable.getPageNumber()+1)
+                .pageSize(pageable.getPageSize())
+                .total(users.getTotalElements())
+                .pages(users.getTotalPages())
+                .build();
+
+        return ResultPaginationDTO.builder()
+                .meta(meta)
+                .data(users.getContent())
+                .build();
     }
 
     public User updateUser(User user) {
         User currentUser = this.fetchUserById(user.getId());
+
         if (currentUser != null) {
             currentUser.setName(user.getName());
             currentUser.setEmail(user.getEmail());
