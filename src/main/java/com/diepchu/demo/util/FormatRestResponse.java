@@ -1,6 +1,7 @@
 package com.diepchu.demo.util;
 
 import com.diepchu.demo.domain.RestResponse;
+import com.diepchu.demo.util.anotation.ApiMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -27,14 +28,16 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         RestResponse<Object> restResonse = new RestResponse<Object>();
         restResonse.setStatusCode(status);
 
-        if(body instanceof String){
+        if (body instanceof String) {
             return body;
         }
         if (status >= 400) {
             return body;
 
-        }else {
+        } else {
             restResonse.setData(body);
+            ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
+            restResonse.setMessage(apiMessage.value());
             restResonse.setError("CALL API SUCCEEDED");
         }
         return restResonse;

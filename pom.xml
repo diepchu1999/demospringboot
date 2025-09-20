@@ -89,6 +89,12 @@
             <artifactId>lombok</artifactId>
             <scope>annotationProcessor</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.turkraft.springfilter/jpa -->
+        <dependency>
+            <groupId>com.turkraft.springfilter</groupId>
+            <artifactId>jpa</artifactId>
+            <version>3.2.1</version>
+        </dependency>
     </dependencies>
 
 	<build>
