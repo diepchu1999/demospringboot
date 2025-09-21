@@ -1,8 +1,7 @@
 package com.diepchu.demo.service;
 
 import com.diepchu.demo.domain.User;
-import com.diepchu.demo.domain.dto.Meta;
-import com.diepchu.demo.domain.dto.ResultPaginationDTO;
+import com.diepchu.demo.domain.dto.*;
 import com.diepchu.demo.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -34,6 +34,17 @@ public class UserService {
 
     public ResultPaginationDTO fetchAllUsers(Specification<User> specification, Pageable pageable) {
         Page<User> users = this.userRepository.findAll(specification,pageable);
+        List<ResUserDTO> listUser = users.getContent()
+                .stream().map(item -> new ResUserDTO(
+                        item.getId(),
+                        item.getEmail(),
+                        item.getName(),
+                        item.getGender(),
+                        item.getAddress(),
+                        item.getAge(),
+                        item.getUpdatedAt(),
+                        item.getCreatedAt()
+                )).toList();
         Meta meta = Meta.builder()
                 .page(pageable.getPageNumber()+1)
                 .pageSize(pageable.getPageSize())
@@ -43,7 +54,7 @@ public class UserService {
 
         return ResultPaginationDTO.builder()
                 .meta(meta)
-                .data(users.getContent())
+                .data(listUser)
                 .build();
     }
 
@@ -61,5 +72,34 @@ public class UserService {
 
     public User handleGetUserByUsername(String username) {
         return this.userRepository.findByEmail(username);
+    }
+
+    public  boolean isEmailExist(String email) {
+        return  this.userRepository.existByEmail(email);
+    }
+
+    public ResCreateUserDTO convertToResCreateUserDTO(User user){
+        ResCreateUserDTO resCreateUserDTO = ResCreateUserDTO.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .age(user.getAge())
+                .createdAt(user.getCreatedAt())
+                .gender(user.getGender())
+                .address(user.getAddress())
+                .build();
+        return resCreateUserDTO;
+    }
+
+    public ResUpdateUserDTO convertToResUpdateUserDTO(User user){
+        ResUpdateUserDTO resUpdateUserDTO = ResUpdateUserDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .age(user.getAge())
+                .updatedAt(user.getUpdatedAt())
+                .gender(user.getGender())
+                .address(user.getAddress())
+                .build();
+        return resUpdateUserDTO;
     }
 }
