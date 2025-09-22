@@ -8,5 +8,6 @@ import com.diepchu.demo.domain.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     User findByEmail(String email);
-    boolean existByEmail(String email);
+
+    boolean existsUserByEmail(String email);
 }

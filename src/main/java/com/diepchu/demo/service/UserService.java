@@ -75,7 +75,7 @@ public class UserService {
     }
 
     public  boolean isEmailExist(String email) {
-        return  this.userRepository.existByEmail(email);
+        return  this.userRepository.existsUserByEmail(email);
     }
 
     public ResCreateUserDTO convertToResCreateUserDTO(User user){
@@ -101,5 +101,15 @@ public class UserService {
                 .address(user.getAddress())
                 .build();
         return resUpdateUserDTO;
+    }
+
+
+    public void updateUserToken(String token, String email) {
+        User currentUser = this.handleGetUserByUsername(email);
+        if (currentUser != null) {
+            currentUser.setRefreshToken(token);
+            this.userRepository.save(currentUser);
+        }
+
     }
 }

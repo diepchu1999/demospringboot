@@ -19,15 +19,6 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalException {
 
-    @ExceptionHandler(value = {UsernameNotFoundException.class, BadCredentialsException.class})
-    public ResponseEntity<RestResponse<Object>> handleIdException(Exception ex) {
-        RestResponse<Object> response = new RestResponse<Object>();
-        response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        response.setMessage(ex.getMessage());
-        response.setMessage("Exeption occurs..");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
     @ExceptionHandler(value = {IdInvalidException.class,
                                 BadCredentialsException.class,
                                 UsernameNotFoundException.class,})
