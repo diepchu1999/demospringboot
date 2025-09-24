@@ -1,9 +1,10 @@
 package com.diepchu.demo.controller;
 
 import com.diepchu.demo.domain.Company;
-import com.diepchu.demo.domain.dto.ResultPaginationDTO;
+import com.diepchu.demo.domain.response.ResultPaginationDTO;
 import com.diepchu.demo.service.CompanyService;
 import com.diepchu.demo.util.anotation.ApiMessage;
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,11 +22,13 @@ public class CompanyController {
     }
 
     @PostMapping("/companies")
+    @ApiMessage("create Company")
     public ResponseEntity<Object> createCompany(@Valid  @RequestBody Company company){
         return ResponseEntity.status(HttpStatus.CREATED).body(companyService.handleCreateCompany(company));
     }
 
     @PutMapping("/companies")
+    @ApiMessage("update Company")
     public ResponseEntity<Object> updateCompany(@Valid  @RequestBody Company updatedCompany){
         return ResponseEntity.status(HttpStatus.OK).body(companyService.handleUpdateCompany(updatedCompany));
     }
@@ -38,9 +41,17 @@ public class CompanyController {
     }
 
     @GetMapping("/companies")
-    public ResponseEntity<ResultPaginationDTO> getAllCompany(Specification<Company> specification, Pageable pageable){
+    @ApiMessage("Get all Company")
+    public ResponseEntity<ResultPaginationDTO> getAllCompany(@Filter Specification<Company> specification, Pageable pageable){
 
-        return ResponseEntity.status(HttpStatus.OK).body(companyService.fetchAllCompanies(specification, pageable ));
+        return ResponseEntity.status(HttpStatus.OK).body(companyService.fetchAllCompanies(specification, pageable));
+    }
+
+    @DeleteMapping("/companies/{id}")
+    @ApiMessage("Delete Company")
+    public ResponseEntity<Void> deleteCompany(@PathVariable long id){
+        this.companyService.handleDeleteCompany(id);
+        return ResponseEntity.ok(null);
     }
 
 }

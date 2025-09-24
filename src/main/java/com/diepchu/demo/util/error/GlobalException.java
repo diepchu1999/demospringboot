@@ -1,6 +1,6 @@
 package com.diepchu.demo.util.error;
 
-import com.diepchu.demo.domain.RestResponse;
+import com.diepchu.demo.domain.response.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,7 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,22 +18,26 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalException {
 
-    @ExceptionHandler(value = {UsernameNotFoundException.class, BadCredentialsException.class})
-    public ResponseEntity<RestResponse<Object>> handleIdException(Exception ex) {
-        RestResponse<Object> response = new RestResponse<Object>();
-        response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        response.setMessage(ex.getMessage());
-        response.setMessage("Exeption occurs..");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    @ExceptionHandler(value = IdInvalidException.class)
+    @ExceptionHandler(value = {IdInvalidException.class,
+                                BadCredentialsException.class,
+                                UsernameNotFoundException.class,})
     public ResponseEntity<RestResponse<Object>> handleBIdInvalidException(IdInvalidException idInvalidException) {
         RestResponse<Object> restResonse = new RestResponse<Object>();
         restResonse.setStatusCode(HttpStatus.BAD_REQUEST.value());
         restResonse.setMessage("idInvalidException");
         restResonse.setError(idInvalidException.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restResonse);
+    }
+
+    @ExceptionHandler(value =  {
+            NoResourceFoundException.class
+    })
+    public ResponseEntity<RestResponse<Object>> handleNotFoundException(Exception ex){
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.NOT_FOUND.value());
+        res.setError(ex.getMessage());
+        res.setMessage("404 Not Found. URL may not exist...");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

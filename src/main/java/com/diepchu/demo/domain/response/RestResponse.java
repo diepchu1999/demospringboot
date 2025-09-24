@@ -1,4 +1,4 @@
-package com.diepchu.demo.domain;
+package com.diepchu.demo.domain.response;
 
 public class RestResponse<T> {
     private int statusCode;

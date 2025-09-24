@@ -1,5 +1,6 @@
 package com.diepchu.demo.util;
 
+import com.diepchu.demo.domain.response.ResLoginDTO;
 import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -15,14 +16,16 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
 public class SecurityUtil {
 
-    private  final JwtEncoder jwtEncoder;
+    private final JwtEncoder jwtEncoder;
 
 
     public static final String AUTHORITIES_KEY = "auth";
@@ -30,8 +33,11 @@ public class SecurityUtil {
     @Value("${hoidanit.jwt.base64-secret}")
     private String jwtKey;
 
-    @Value("${hoidanit.jwt.token-validity-in-seconds}")
-    private long jwtExpiration;
+    @Value("${hoidanit.jwt.access-token-validity-in-seconds}")
+    private long accessTokenExpiration;
+
+    @Value("${hoidanit.jwt.refersh-token-validity-in-seconds}")
+    private long refreshTokenExpiration;
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
@@ -39,17 +45,22 @@ public class SecurityUtil {
         this.jwtEncoder = jwtEncoder;
     }
 
-    public String createToken(Authentication authentication) {
+    public String createAccessToken(String email, ResLoginDTO.UserLogin resLoginDTO) {
         Instant now = Instant.now();
-        Instant validity = now.plus(this.jwtExpiration, ChronoUnit.SECONDS);
+        Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
+
+        List<String> listAuthority = new ArrayList<String>();
+        listAuthority.add("ROLE_USER_CREATE");
+        listAuthority.add("ROLE_USER_UPDATE");
 
 
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .expiresAt(validity)
-                .subject(authentication.getName())
-                .claim("hoidanit", authentication)
+                .subject(email)
+                .claim("user", resLoginDTO)
+                .claim("permission", listAuthority)
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
@@ -138,6 +149,43 @@ public class SecurityUtil {
     private static Stream<String> getAuthorities(Authentication authentication) {
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
     }
+
+
+    public String createRefreshToken(String email, ResLoginDTO dto) {
+        Instant now = Instant.now();
+        Instant validity = now.plus(this.refreshTokenExpiration, ChronoUnit.SECONDS);
+
+        // @formatter:off
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuedAt(now)
+                .expiresAt(validity)
+                .subject(email)
+                .claim("user", dto.getUser())
+                .build();
+
+        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
+        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+
+    }
+
+    public Jwt checkValidRefreshToken(String refreshToken) {
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
+                getSecretKey()).macAlgorithm(SecurityUtil.JWT_ALGORITHM).build();
+        try {
+             return  jwtDecoder.decode(refreshToken);
+        } catch (Exception e) {
+            System.out.println(">>> Refresh Token JWT error: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    private SecretKey getSecretKey() {
+
+        byte[] keyBytes = Base64.from(jwtKey).decode();
+        return new SecretKeySpec(keyBytes, 0, keyBytes.length, JWT_ALGORITHM.getName());
+    }
+
+
 
 
 }

@@ -1,6 +1,6 @@
 package com.diepchu.demo.config;
 
-import com.diepchu.demo.domain.RestResponse;
+import com.diepchu.demo.domain.response.RestResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

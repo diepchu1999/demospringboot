@@ -1,8 +1,8 @@
-package com.diepchu.demo.domain.dto;
+package com.diepchu.demo.domain.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class LoginDTO {
+public class ReqLoginDTO {
 
     @NotBlank(message = "khong duoc de trong")
     private String username;
