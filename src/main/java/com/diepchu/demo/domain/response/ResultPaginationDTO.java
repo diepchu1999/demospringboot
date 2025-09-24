@@ -1,4 +1,4 @@
-package com.diepchu.demo.domain.dto;
+package com.diepchu.demo.domain.response;
 
 import lombok.*;
 
@@ -9,5 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ResultPaginationDTO {
     private Meta meta;
-    private Object data;
+    private Object result;
+
+
 }

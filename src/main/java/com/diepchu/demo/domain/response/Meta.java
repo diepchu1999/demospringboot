@@ -1,4 +1,4 @@
-package com.diepchu.demo.domain.dto;
+package com.diepchu.demo.domain.response;
 
 import lombok.*;
 

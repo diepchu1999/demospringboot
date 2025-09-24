@@ -1,7 +1,9 @@
 package com.diepchu.demo.service;
 
+import com.diepchu.demo.domain.Company;
 import com.diepchu.demo.domain.User;
-import com.diepchu.demo.domain.dto.*;
+import com.diepchu.demo.domain.response.*;
+import com.diepchu.demo.repository.CompanyRepository;
 import com.diepchu.demo.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,17 +12,38 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    public UserService(UserRepository userRepository) {
+    private final CompanyService companyService;
+    public UserService(UserRepository userRepository, CompanyService companyService) {
         this.userRepository = userRepository;
+        this.companyService = companyService;
     }
 
     public User handleCreateUser(User user) {
+        if(user.getCompany() != null){
+            Optional<Company> companyOptional = this.companyService.findById(user.getCompany().getId());
+            user.setCompany(companyOptional.orElse(companyOptional.get()));
+        }
         return this.userRepository.save(user);
+    }
+
+    public User handleUpdateUser(User user) {
+        User currentUser = this.fetchUserById(user.getId());
+        if(currentUser != null){
+            currentUser.setAddress(user.getAddress());
+            currentUser.setGender(user.getGender());
+            currentUser.setAge(user.getAge());
+            currentUser.setName(user.getName());
+
+            if (user.getCompany() != null) {
+                Optional<Company> companyOptional = this.companyService.findById(user.getCompany().getId());
+                user.setCompany(companyOptional.orElse(companyOptional.get()));
+            }
+        }
+        return this.userRepository.save(currentUser);
     }
 
     public void handleDeleteUser(long id) {
@@ -43,7 +66,9 @@ public class UserService {
                         item.getAddress(),
                         item.getAge(),
                         item.getUpdatedAt(),
-                        item.getCreatedAt()
+                        item.getCreatedAt(),
+                        new ResUserDTO.CompanyUser(item.getCompany() != null ? item.getCompany().getId() : 0,
+                                item.getCompany() !=null ? item.getCompany().getName() : null)
                 )).toList();
         Meta meta = Meta.builder()
                 .page(pageable.getPageNumber()+1)
@@ -54,21 +79,10 @@ public class UserService {
 
         return ResultPaginationDTO.builder()
                 .meta(meta)
-                .data(listUser)
+                .result(listUser)
                 .build();
     }
 
-    public User updateUser(User user) {
-        User currentUser = this.fetchUserById(user.getId());
-
-        if (currentUser != null) {
-            currentUser.setName(user.getName());
-            currentUser.setEmail(user.getEmail());
-            currentUser.setPassword(user.getPassword());
-            currentUser = this.userRepository.save(currentUser);
-        }
-        return currentUser;
-    }
 
     public User handleGetUserByUsername(String username) {
         return this.userRepository.findByEmail(username);
@@ -79,30 +93,43 @@ public class UserService {
     }
 
     public ResCreateUserDTO convertToResCreateUserDTO(User user){
-        ResCreateUserDTO resCreateUserDTO = ResCreateUserDTO.builder()
+        ResCreateUserDTO.ResCreateUserDTOBuilder builder = ResCreateUserDTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .age(user.getAge())
                 .createdAt(user.getCreatedAt())
                 .gender(user.getGender())
-                .address(user.getAddress())
-                .build();
+                .address(user.getAddress());
+
+        if (user.getCompany() != null) {
+            ResCreateUserDTO.CompanyUser com = new ResCreateUserDTO.CompanyUser();
+            com.setId(user.getCompany().getId());
+            com.setName(user.getCompany().getName());
+            builder.company(com);
+        }
+
+        ResCreateUserDTO resCreateUserDTO = builder.build();
         return resCreateUserDTO;
     }
 
     public ResUpdateUserDTO convertToResUpdateUserDTO(User user){
-        ResUpdateUserDTO resUpdateUserDTO = ResUpdateUserDTO.builder()
+        ResUpdateUserDTO.ResUpdateUserDTOBuilder builder = ResUpdateUserDTO.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .age(user.getAge())
                 .updatedAt(user.getUpdatedAt())
                 .gender(user.getGender())
-                .address(user.getAddress())
-                .build();
-        return resUpdateUserDTO;
-    }
+                .address(user.getAddress());
+        if (user.getCompany() != null) {
+            ResUpdateUserDTO.CompanyUser com = new ResUpdateUserDTO.CompanyUser();
+            com.setId(user.getCompany().getId());
+            com.setName(user.getCompany().getName());
+            builder.company(com);
+        }
 
+        return builder.build();
+    }
 
     public void updateUserToken(String token, String email) {
         User currentUser = this.handleGetUserByUsername(email);
@@ -112,4 +139,9 @@ public class UserService {
         }
 
     }
+
+    public User getUserByRefreshTokenAndEmail(String refreshToken, String email) {
+        return this.userRepository.findByRefreshTokenAndEmail(refreshToken, email);
+    }
+
 }

@@ -1,6 +1,6 @@
 package com.diepchu.demo.util;
 
-import com.diepchu.demo.domain.RestResponse;
+import com.diepchu.demo.domain.response.RestResponse;
 import com.diepchu.demo.util.anotation.ApiMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;

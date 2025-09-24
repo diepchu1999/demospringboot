@@ -1,24 +1,20 @@
 package com.diepchu.demo.controller;
 
 import com.diepchu.demo.domain.User;
-import com.diepchu.demo.domain.dto.ResCreateUserDTO;
-import com.diepchu.demo.domain.dto.ResUpdateUserDTO;
-import com.diepchu.demo.domain.dto.ResultPaginationDTO;
+import com.diepchu.demo.domain.response.ResCreateUserDTO;
+import com.diepchu.demo.domain.response.ResUpdateUserDTO;
+import com.diepchu.demo.domain.response.ResultPaginationDTO;
 import com.diepchu.demo.service.UserService;
 import com.diepchu.demo.util.anotation.ApiMessage;
 import com.diepchu.demo.util.error.IdInvalidException;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1")
@@ -73,7 +69,7 @@ public class UserController {
 
     @PutMapping("/users")
     public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User user) throws IdInvalidException {
-        User currentUser = this.userService.fetchUserById(user.getId());
+        User currentUser = this.userService.handleUpdateUser(user);
         if(currentUser == null){
             throw new IdInvalidException("User voi id = " +user.getId() + " khong ton tai");
         }

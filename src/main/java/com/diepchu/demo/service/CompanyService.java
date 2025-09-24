@@ -1,9 +1,11 @@
 package com.diepchu.demo.service;
 
 import com.diepchu.demo.domain.Company;
-import com.diepchu.demo.domain.dto.Meta;
-import com.diepchu.demo.domain.dto.ResultPaginationDTO;
+import com.diepchu.demo.domain.User;
+import com.diepchu.demo.domain.response.Meta;
+import com.diepchu.demo.domain.response.ResultPaginationDTO;
 import com.diepchu.demo.repository.CompanyRepository;
+import com.diepchu.demo.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -16,9 +18,11 @@ import java.util.Optional;
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final UserRepository userRepository;
 
-    public CompanyService(CompanyRepository companyRepository) {
+    public CompanyService(CompanyRepository companyRepository,  UserRepository userRepository) {
         this.companyRepository = companyRepository;
+        this.userRepository = userRepository;
     }
 
     public Company handleCreateCompany(Company company) {
@@ -29,6 +33,7 @@ public class CompanyService {
         Optional<Company> company = companyRepository.findById(id);
         return company.orElse(null);
     }
+
 
     public Company handleUpdateCompany(Company updatedCompany) {
         return companyRepository.findById(updatedCompany.getId())
@@ -56,12 +61,22 @@ public class CompanyService {
 
         ResultPaginationDTO result = ResultPaginationDTO.builder()
                 .meta(meta)
-                .data(companies.getContent())
+                .result(companies.getContent())
                 .build();
         return result;
     }
 
     public void handleDeleteCompany(long id) {
+        Optional<Company> company = companyRepository.findById(id);
+        if (company.isPresent()) {
+            Company comp = company.get();
+            List<User> users = userRepository.findByCompany(comp);
+            this.userRepository.deleteAll(users);
+        }
         this.companyRepository.deleteById(id);
+    }
+
+    public Optional<Company> findById(long id) {
+        return this.companyRepository.findById(id);
     }
 }
