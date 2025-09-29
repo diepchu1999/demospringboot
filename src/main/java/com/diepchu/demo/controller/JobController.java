@@ -5,7 +5,6 @@ import com.diepchu.demo.domain.response.ResultPaginationDTO;
 import com.diepchu.demo.domain.response.job.ResCreateJobDTO;
 import com.diepchu.demo.domain.response.job.ResUpdateJobDTO;
 import com.diepchu.demo.service.JobService;
-import com.diepchu.demo.service.SkillService;
 import com.diepchu.demo.util.anotation.ApiMessage;
 import com.diepchu.demo.util.error.IdInvalidException;
 import com.turkraft.springfilter.boot.Filter;
@@ -59,5 +58,6 @@ public class JobController {
             @Filter Specification<Job> spec, Pageable pageable) {
         return ResponseEntity.ok().body(this.jobService.fetchAll(spec, pageable));
     }
+
 
 }
