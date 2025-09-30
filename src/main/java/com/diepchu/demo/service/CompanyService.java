@@ -29,9 +29,8 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
-    public Company fetchCompanyById(long id) {
-        Optional<Company> company = companyRepository.findById(id);
-        return company.orElse(null);
+    public Optional<Company> fetchCompanyById(long id) {
+        return companyRepository.findById(id);
     }
 
 
