@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/api/v1")
 public class JobController {
     private final JobService jobService;
 
@@ -25,7 +26,7 @@ public class JobController {
         this.jobService = jobService;
     }
 
-    @PostMapping("/job")
+    @PostMapping("/jobs")
     @ApiMessage("Create a job")
     public ResponseEntity<ResCreateJobDTO> create(@Valid @RequestBody Job job) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -39,7 +40,7 @@ public class JobController {
         if (!currentJob.isPresent()) {
             throw new IdInvalidException("Job not found");
         }
-        return ResponseEntity.ok().body(this.jobService.update(job));
+        return ResponseEntity.ok().body(this.jobService.update(job, currentJob.get()));
     }
 
     @GetMapping("/jobs/{id}")

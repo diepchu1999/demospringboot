@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("api/v1")
 public class CompanyController {
@@ -36,8 +38,8 @@ public class CompanyController {
     @GetMapping("/companies/{id}")
     @ApiMessage("fetch all Company")
     public ResponseEntity<Company> getCompany(@PathVariable long id){
-        Company fetchCompanyById = companyService.fetchCompanyById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(fetchCompanyById);
+        Optional<Company> fetchCompanyById = companyService.fetchCompanyById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(fetchCompanyById.get());
     }
 
     @GetMapping("/companies")
